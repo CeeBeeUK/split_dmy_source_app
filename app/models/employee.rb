@@ -1,6 +1,6 @@
 class Employee < ActiveRecord::Base
   extend TimeSplitter::Accessors
-  extend SplitDateDmy::Accessors
+  extend SplitDmy::Accessors
 
   split_accessor :login
   split_dmy_accessor :dob

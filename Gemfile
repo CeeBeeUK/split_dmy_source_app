@@ -24,8 +24,8 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem "time_splitter"
-gem 'split_date_dmy', path: '/Users/colinbruce/Projects/split-date-dmy'
-
+# gem 'split_date_dmy', path: '/Users/colinbruce/Projects/split-date-dmy'
+gem 'split_dmy', path: '~/projects/split_dmy'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

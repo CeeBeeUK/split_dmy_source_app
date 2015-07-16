@@ -1,7 +1,7 @@
 PATH
-  remote: /Users/colinbruce/Projects/split-date-dmy
+  remote: ~/projects/split_dmy
   specs:
-    split_date_dmy (0.0.3)
+    split_dmy (0.1.30)
 
 GEM
   remote: https://rubygems.org/
@@ -155,7 +155,7 @@ DEPENDENCIES
   rails (= 4.2.2)
   sass-rails (~> 5.0)
   sdoc (~> 0.4.0)
-  split_date_dmy!
+  split_dmy!
   spring
   sqlite3
   time_splitter

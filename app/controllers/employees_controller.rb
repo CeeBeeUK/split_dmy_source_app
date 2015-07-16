@@ -19,6 +19,11 @@ class EmployeesController < ApplicationController
 
   # GET /employees/1/edit
   def edit
+    puts '---------'
+    puts "@employee=#{@employee.inspect}"
+    puts "@employee.dob=#{@employee.dob}"
+    puts "@employee.dob_year=#{@employee.dob_year}"
+    puts '---------'
   end
 
   # POST /employees
