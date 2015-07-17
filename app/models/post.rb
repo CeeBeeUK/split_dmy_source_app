@@ -1,10 +1,10 @@
 class Post < ActiveRecord::Base
-  Date::DATE_FORMATS[:gov_uk] = '%-d %B %Y'
+  Date::DATE_FORMATS[:gov_uk_long] = '%-d %B %Y'
+  Date::DATE_FORMATS[:gov_uk_short] = '%-d %b %Y'
 
   validates :posted, presence: true
-  # validate :validate_day
-  validate:validate_month
-  validate :validate_year
+  validate :validate_partials
+
   validates :posted_day, presence: true
   validates :posted_month, presence: true
   validates :posted_year, presence: true
@@ -17,6 +17,11 @@ class Post < ActiveRecord::Base
 
     puts '=--=--=--='
     puts attr_has_presence_validation?(:posted)
+    puts 'can I remove it?'
+    _validators[:posted]
+        .find { |v| v.is_a? ActiveRecord::Validations::PresenceValidator }
+        .attributes
+        .delete(:posted)
     puts '=--=--=--='
 
     puts "----after_initialize found #{item.inspect}" unless item.nil?
@@ -33,8 +38,12 @@ class Post < ActiveRecord::Base
     end.compact.collect(&:attributes).flatten.include? attr
   end
 
-  def posted_govuk
-    self.posted.to_s(:gov_uk) unless self.posted.nil?
+  def posted_govuk_long
+    self.posted.to_s(:gov_uk_long) unless self.posted.nil?
+  end
+
+  def posted_govuk_short
+    self.posted.to_s(:gov_uk_short) unless self.posted.nil?
   end
 
   def posted_day=(val)
@@ -78,12 +87,15 @@ class Post < ActiveRecord::Base
 
   def partials_valid?
     begin
-      checks = {
-          d: valid_day?,
-          m: valid_month?,
-          y: valid_year?
-      }
-      checks.values.all?
+      { d: valid_day?, m: valid_month?, y: valid_year? }.values.all?
+    rescue
+      false
+    end
+  end
+
+  def partials_empty?
+    begin
+      { d: @posted_day.empty?, m: @posted_month.empty?, y: @posted_year.empty? }.values.all?
     rescue
       false
     end
@@ -93,22 +105,28 @@ class Post < ActiveRecord::Base
     Date.new(@posted_year.to_i, @posted_month.to_i, @posted_day.to_i)
   end
 
-  def validate_day
-    unless valid_day?
+  def validate_partials
+    new_errs = []
+
+    if partials_empty?
+      new_errs << "you need to provide a valid date."
+    else
+      new_errs << "'#{@posted_day}' is not a valid day" unless valid_day?
+      new_errs << "'#{@posted_month}' is not a valid month" unless valid_month?
+      new_errs << "'#{@posted_year}' is not a valid year" unless valid_year?
+    end
+
+    unless new_errs.empty?
       errors.delete(:posted)
-      errors.add(:posted_day, "'#{@posted_day}' is not valid")
+      errors.delete(:posted_day)
+      errors.delete(:posted_month)
+      errors.delete(:posted_year)
+      errors.add(:posted, "is not valid, #{new_errs.to_sentence(last_word_connector: ' and ')}")
     end
   end
 
   def valid_day?
     (valid_fixnum?(@posted_day, 31) || valid_numeric_string?(@posted_day, 31))
-  end
-
-  def validate_month
-    unless valid_month?
-      errors.delete(:posted)
-      errors.add(:posted_month, "'#{@posted_month}' is not valid")
-    end
   end
 
   def valid_month?
@@ -124,20 +142,9 @@ class Post < ActiveRecord::Base
       result = val.to_i
     else
       mon_name = valid_month_name?(val)
-      if mon_name.present?
-        result = mon_name
-      else
-        result = val
-      end
+      result = mon_name.present? ? mon_name : val
     end
     result
-  end
-
-  def validate_year
-    unless valid_year?
-      errors.delete(:posted)
-      errors.add(:posted_year, "'#{@posted_year}' is not valid")
-    end
   end
 
   def valid_year?

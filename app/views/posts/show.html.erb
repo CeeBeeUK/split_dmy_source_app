@@ -6,7 +6,11 @@
 </p>
 <p>
   <strong>Posted: in gov uk style:</strong>
-  <%= @post.posted_govuk %>
+  <%= @post.posted_govuk_short %>
+</p>
+<p>
+  <strong>Posted: in gov uk long style:</strong>
+  <%= @post.posted_govuk_long %>
 </p>
 
 <%= link_to 'Edit', edit_post_path(@post) %> |
