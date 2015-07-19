@@ -1,6 +1,37 @@
-<h1>Editing Post</h1>
+<hr>
+<div style="width:50%;float:right;">
+  <h1>Instructions</h1>
+  <table>
+    <thead>
+    <tr>
+      <td>Test</td>
+      <td>Expected result/error message</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>Leave all three fields empty</td>
+      <td>Posted is not valid, you need to provide a valid date</td>
+    </tr>
+    <tr>
+      <td>Leave day field empty, fill in month and year</td>
+      <td>Posted is not valid, day must be completed</td>
+    </tr>
+    <tr>
+      <td>Leave day and month fields empty, fill in year</td>
+      <td>Posted is not valid, day and month must be completed</td>
+    </tr>
+    <tr>
+      <td>Leave day empty, enter a non month name e.g. 'Jim' and fill in year</td>
+      <td>Posted is not valid, day must be completed and 'Jim' is not a valid month</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
 
-<%= render 'form' %>
-
-<%= link_to 'Show', @post %> |
-<%= link_to 'Back', posts_path %>
+<div style="width:50%;float:left;">
+  <h1>Editing Post</h1>
+  <%= render 'form' %>
+  <%= link_to 'Show', @post %> |
+  <%= link_to 'Back', posts_path %>
+</div>
