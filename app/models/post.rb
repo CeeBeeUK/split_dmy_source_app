@@ -80,7 +80,7 @@ class Post < ActiveRecord::Base
   end
 
   def posted_update
-    new_posted = partials_valid? ? build_date : nil
+    new_posted = partials_valid? && build_date ? build_date : nil
     puts "--- posted_update.new_posted=#{new_posted}"
     self.posted = new_posted
   end
@@ -102,7 +102,13 @@ class Post < ActiveRecord::Base
   end
 
   def build_date
-    Date.new(@posted_year.to_i, @posted_month.to_i, @posted_day.to_i)
+    date = Date.new(@posted_year.to_i, @posted_month.to_i, @posted_day.to_i)
+    unless date.day == @posted_day.to_i && date.month == @posted_month.to_i && date.year == @posted_year.to_i
+      fail 'date does not match your inputted data'
+    end
+    date
+  rescue
+    false
   end
 
   def validate_partials
@@ -110,6 +116,8 @@ class Post < ActiveRecord::Base
 
     if partials_empty?
       new_errs << "you need to provide a valid date."
+    elsif !build_date
+      new_errs << "'#{@posted_day}-#{@posted_month}-#{@posted_year}' is not a valid date"
     else
       new_errs << "'#{@posted_day}' is not a valid day" unless valid_day?
       new_errs << "'#{@posted_month}' is not a valid month" unless valid_month?

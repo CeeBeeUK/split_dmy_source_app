@@ -1,7 +1,7 @@
 PATH
   remote: ~/projects/split_dmy
   specs:
-    split_dmy (0.1.30)
+    split_dmy (0.1.2)
 
 GEM
   remote: https://rubygems.org/
