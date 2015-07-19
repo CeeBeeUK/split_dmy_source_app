@@ -5,9 +5,9 @@ class Post < ActiveRecord::Base
   validates :posted, presence: true
   validate :validate_partials
 
-  validates :posted_day, presence: true
-  validates :posted_month, presence: true
-  validates :posted_year, presence: true
+  # validates :posted_day, presence: true
+  # validates :posted_month, presence: true
+  # validates :posted_year, presence: true
 
   after_find do |item|
     puts "----after_find found #{item.inspect}" unless item.nil?
@@ -16,12 +16,15 @@ class Post < ActiveRecord::Base
   after_initialize do |item|
 
     puts '=--=--=--='
-    puts attr_has_presence_validation?(:posted)
-    puts 'can I remove it?'
-    _validators[:posted]
-        .find { |v| v.is_a? ActiveRecord::Validations::PresenceValidator }
-        .attributes
-        .delete(:posted)
+    puts 'attr_has_presence_validation?(:posted)'
+    yes = attr_has_presence_validation?(:posted)
+    if yes
+      puts 'can I remove it?'
+      _validators[:posted].find { |v| v.is_a? ActiveRecord::Validations::PresenceValidator }.attributes.delete(:posted)
+      puts attr_has_presence_validation?(:posted)
+    else
+      puts 'no need to try'
+    end
     puts '=--=--=--='
 
     puts "----after_initialize found #{item.inspect}" unless item.nil?
@@ -93,7 +96,7 @@ class Post < ActiveRecord::Base
     end
   end
 
-  def partials_empty?
+  def all_partials_empty?
     begin
       { d: @posted_day.empty?, m: @posted_month.empty?, y: @posted_year.empty? }.values.all?
     rescue
@@ -101,12 +104,14 @@ class Post < ActiveRecord::Base
     end
   end
 
+  def some_partials_empty?
+    { d: @posted_day.blank?, m: @posted_month.blank?, y: @posted_year.blank? }.values.count > 0
+  end
+
   def build_date
     date = Date.new(@posted_year.to_i, @posted_month.to_i, @posted_day.to_i)
-    unless date.day == @posted_day.to_i && date.month == @posted_month.to_i && date.year == @posted_year.to_i
-      fail 'date does not match your inputted data'
-    end
-    date
+    date if date.day == @posted_day.to_i && date.month == @posted_month.to_i && date.year == @posted_year.to_i
+
   rescue
     false
   end
@@ -114,14 +119,22 @@ class Post < ActiveRecord::Base
   def validate_partials
     new_errs = []
 
-    if partials_empty?
-      new_errs << "you need to provide a valid date."
-    elsif !build_date
+    if all_partials_empty?
+      new_errs << "you need to provide a valid date"
+    elsif partials_valid? && !build_date
       new_errs << "'#{@posted_day}-#{@posted_month}-#{@posted_year}' is not a valid date"
     else
-      new_errs << "'#{@posted_day}' is not a valid day" unless valid_day?
-      new_errs << "'#{@posted_month}' is not a valid month" unless valid_month?
-      new_errs << "'#{@posted_year}' is not a valid year" unless valid_year?
+      field_errors = []
+      ['day', 'month', 'year'].each do |part|
+        if instance_variable_get("@posted_#{part}").to_s.empty?
+          field_errors << "#{part} must be completed"
+        else
+          field_errors << "'#{instance_variable_get("@posted_#{part}")}' is not a valid #{part}" unless send("valid_#{part}?")
+        end
+      end
+
+      new_errs << "#{field_errors.to_sentence(last_word_connector: ' and ')}" unless field_errors.empty?
+
     end
 
     unless new_errs.empty?
