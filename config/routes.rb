@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :people
   resources :posts
   resources :employees
   # The priority is based upon order of creation: first created -> highest priority.
