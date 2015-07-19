@@ -8,6 +8,7 @@
 </head>
 <body>
 
+<%= link_to 'Home', root_path unless current_page?(root_path) %>
 <%= yield %>
 
 </body>
