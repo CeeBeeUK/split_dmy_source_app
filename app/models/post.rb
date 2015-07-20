@@ -127,9 +127,15 @@ class Post < ActiveRecord::Base
       field_errors = []
       ['day', 'month', 'year'].each do |part|
         if instance_variable_get("@posted_#{part}").to_s.empty?
-          field_errors << "#{part} must be completed"
+          err_msg = 'must be completed'
+          field_errors << "#{part} #{err_msg}"
+          errors.add("posted_#{part}".to_sym, err_msg)
         else
-          field_errors << "'#{instance_variable_get("@posted_#{part}")}' is not a valid #{part}" unless send("valid_#{part}?")
+          unless send("valid_#{part}?")
+            err_msg = "is not a valid #{part}"
+            field_errors << "'#{instance_variable_get("@posted_#{part}")}' #{err_msg}"
+            errors.add("posted_#{part}".to_sym, err_msg)
+          end
         end
       end
 
@@ -138,10 +144,10 @@ class Post < ActiveRecord::Base
     end
 
     unless new_errs.empty?
-      errors.delete(:posted)
-      errors.delete(:posted_day)
-      errors.delete(:posted_month)
-      errors.delete(:posted_year)
+      # errors.delete(:posted)
+      # errors.delete(:posted_day)
+      # errors.delete(:posted_month)
+      # errors.delete(:posted_year)
       errors.add(:posted, "is not valid, #{new_errs.to_sentence(last_word_connector: ' and ')}")
     end
   end

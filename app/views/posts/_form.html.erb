@@ -10,23 +10,26 @@
       </ul>
     </div>
   <% end %>
-
   <div class="field">
-    <%= f.label :posted_day %><br>
-    <%= f.text_field :posted_day %>
+    <%= f.label :posted %>
+      <div class="field">
+        <%= f.label :posted_day, 'Day' %><br>
+        <%= f.text_field :posted_day %>
+      </div>
+
+      <div class="field">
+        <%= f.label :posted_month, 'Month' %><br>
+        <%= f.text_field :posted_month %>
+      </div>
+
+      <div class="field">
+        <%= f.label :posted_year, 'Year' %><br>
+        <%= f.text_field :posted_year %>
+      </div>
+
+      <div class="actions">
+        <%= f.submit %>
+      </div>
   </div>
 
-  <div class="field">
-    <%= f.label :posted_month %><br>
-    <%= f.text_field :posted_month %>
-  </div>
-
-  <div class="field">
-    <%= f.label :posted_year %><br>
-    <%= f.text_field :posted_year %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
 <% end %>
