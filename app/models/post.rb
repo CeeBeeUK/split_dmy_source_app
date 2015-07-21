@@ -144,7 +144,7 @@ class Post < ActiveRecord::Base
     end
 
     unless new_errs.empty?
-      # errors.delete(:posted)
+      errors.delete(:posted)
       # errors.delete(:posted_day)
       # errors.delete(:posted_month)
       # errors.delete(:posted_year)
