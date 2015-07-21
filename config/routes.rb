@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
+  resources :managers
   root 'home#index'
 
+  resources :managers
   resources :people
   resources :posts
   resources :employees
