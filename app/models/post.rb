@@ -1,4 +1,5 @@
 class Post < ActiveRecord::Base
+
   Date::DATE_FORMATS[:gov_uk_long] = '%-d %B %Y'
   Date::DATE_FORMATS[:gov_uk_short] = '%-d %b %Y'
 
@@ -126,17 +127,17 @@ class Post < ActiveRecord::Base
     else
       field_errors = []
       ['day', 'month', 'year'].each do |part|
+        err_msg = ''
         if instance_variable_get("@posted_#{part}").to_s.empty?
           err_msg = 'must be completed'
           field_errors << "#{part} #{err_msg}"
-          errors.add("posted_#{part}".to_sym, err_msg)
         else
           unless send("valid_#{part}?")
             err_msg = "is not a valid #{part}"
             field_errors << "'#{instance_variable_get("@posted_#{part}")}' #{err_msg}"
-            errors.add("posted_#{part}".to_sym, err_msg)
           end
         end
+        errors.add("posted_#{part}".to_sym, err_msg) if err_msg.preseent?
       end
 
       new_errs << "#{field_errors.to_sentence(last_word_connector: ' and ')}" unless field_errors.empty?
