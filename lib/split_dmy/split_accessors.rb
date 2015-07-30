@@ -2,7 +2,10 @@ module SplitDmy
   module SplitAccessors
     def split_dmy_accessor(*attrs)
       require 'date_validator'
+
       attrs.each do |attr|
+        validate "validate_#{attr}_partials".to_sym
+
         ['day', 'month', 'year'].each do |part|
           define_method("#{attr}_#{part}=") do |val|
             instance_variable_set("@#{attr}_#{part}", val)

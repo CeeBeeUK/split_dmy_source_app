@@ -105,9 +105,9 @@ class Post < ActiveRecord::Base
     end
   end
 
-  def some_partials_empty?
-    { d: @posted_day.blank?, m: @posted_month.blank?, y: @posted_year.blank? }.values.count > 0
-  end
+  # def some_partials_empty?
+  #   { d: @posted_day.blank?, m: @posted_month.blank?, y: @posted_year.blank? }.values.count > 0
+  # end
 
   def build_date
     date = Date.new(@posted_year.to_i, @posted_month.to_i, @posted_day.to_i)
@@ -137,7 +137,7 @@ class Post < ActiveRecord::Base
             field_errors << "'#{instance_variable_get("@posted_#{part}")}' #{err_msg}"
           end
         end
-        errors.add("posted_#{part}".to_sym, err_msg) if err_msg.preseent?
+        errors.add("posted_#{part}".to_sym, err_msg) if err_msg.present?
       end
 
       new_errs << "#{field_errors.to_sentence(last_word_connector: ' and ')}" unless field_errors.empty?
@@ -158,21 +158,12 @@ class Post < ActiveRecord::Base
   end
 
   def valid_month?
-    (
-      valid_fixnum?(@posted_month, 12) ||
-      valid_numeric_string?(@posted_month, 12) ||
-      valid_month_name?(@posted_month)
-    )
+    (valid_fixnum?(@posted_month, 12) || valid_numeric_string?(@posted_month, 12))
   end
 
   def parse_month(val)
-    if valid_fixnum?(val, 12) || valid_numeric_string?(val, 12)
-      result = val.to_i
-    else
-      mon_name = valid_month_name?(val)
-      result = mon_name.present? ? mon_name : val
-    end
-    result
+    mon_name = valid_month_name?(val)
+    mon_name.present? ? mon_name : val
   end
 
   def valid_year?
@@ -191,9 +182,9 @@ class Post < ActiveRecord::Base
     x =~ /^[0-9]{4}$/ && x.to_i <= 3333 && x.to_i > 0000
   end
 
-  def convert_year(year)
-    Date.parse("31-dec-#{y}").year
-  end
+  # def convert_year(year)
+  #   Date.parse("31-dec-#{year}").year
+  # end
 
   def valid_month_name?(month)
     short_months = I18n.t('date.abbr_month_names')
