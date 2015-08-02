@@ -2,7 +2,6 @@ require 'rails_helper'
 require_relative '../../spec/support/matchers/accessors_shared'
 
 RSpec.describe Manager, type: :model do
-
   let(:model) { Manager.new }
 
   it 'has a date of birth field to extend' do
@@ -16,7 +15,6 @@ RSpec.describe Manager, type: :model do
   describe 'split dmy methods' do
     describe 'handles pre-set dates' do
       describe 'passes them to the new accessors' do
-
         before(:each) { model.date_of_birth = '1991-1-21' }
 
         it 'sets the _day' do
@@ -47,7 +45,6 @@ RSpec.describe Manager, type: :model do
       end
 
       describe 'allows clearing of preset data' do
-
         before(:each) { model.date_of_birth = '1991-1-21' }
 
         it 'by setting all values to nil' do
@@ -96,7 +93,8 @@ RSpec.describe Manager, type: :model do
           end
 
           it 'adds an error message' do
-            expect(model.errors[:date_of_birth_day]).to eq ['is not a valid day']
+            err_msg = ['is not a valid day']
+            expect(model.errors[:date_of_birth_day]).to eq err_msg
           end
         end
 
@@ -187,7 +185,7 @@ RSpec.describe Manager, type: :model do
           end
         end
         describe 'that is not a valid month' do
-          before {model.date_of_birth_month = 'first' }
+          before { model.date_of_birth_month = 'first' }
 
           it 'returns the text' do
             expect(model.date_of_birth_month).to eq 'first'
