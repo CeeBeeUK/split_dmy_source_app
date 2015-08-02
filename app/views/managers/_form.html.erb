@@ -1,0 +1,34 @@
+<%= form_for(@manager) do |f| %>
+  <% if @manager.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@manager.errors.count, "error") %> prohibited this manager from being saved:</h2>
+
+      <ul>
+      <% @manager.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+    <div class="field">
+      <%= f.label :date_of_birth %>
+      <div class="field">
+        <%= f.label :date_of_birth_day, 'Day' %><br>
+        <%= f.text_field :date_of_birth_day %>
+      </div>
+
+      <div class="field">
+        <%= f.label :date_of_birth_month, 'Month' %><br>
+        <%= f.text_field :date_of_birth_month %>
+      </div>
+
+      <div class="field">
+        <%= f.label :date_of_birth_year, 'Year' %><br>
+        <%= f.text_field :date_of_birth_year %>
+      </div>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
