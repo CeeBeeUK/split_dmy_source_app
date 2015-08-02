@@ -23,7 +23,30 @@ RSpec.describe Manager, type: :model do
           expect(model.date_of_birth_day).to eq 21
         end
       end
-        describe 'allows clearing of preset data' do
+
+      context 'when object created with date' do
+        let(:model) { Manager.new(date_of_birth: Date.new(1992, 1, 21)) }
+
+        it 'sets the date' do
+          expect(model.date_of_birth).to eq Date.new(1992, 1, 21)
+        end
+
+        describe 'splits the partials' do
+          it 'sets the day' do
+            expect(model.date_of_birth_day).to eq 21
+          end
+
+          it 'sets the month' do
+            expect(model.date_of_birth_month).to eq 1
+          end
+
+          it 'sets the year' do
+            expect(model.date_of_birth_year).to eq 1992
+          end
+        end
+      end
+
+      describe 'allows clearing of preset data' do
 
         before(:each) { model.date_of_birth = '1991-1-21' }
 
@@ -63,24 +86,42 @@ RSpec.describe Manager, type: :model do
         end
 
         describe 'above accepted range' do
-          it 'sets the value as nil' do
+          before do
             model.date_of_birth_day = 32
-            expect(model.date_of_birth_day).to be_nil
+            model.valid?
+          end
+
+          it 'sets the value' do
+            expect(model.date_of_birth_day).to eq 32
+          end
+
+          it 'adds an error message' do
+            expect(model.errors[:date_of_birth_day]).to eq ['is not a valid day']
           end
         end
 
         describe 'below accepted range' do
-          it 'sets the value as nil' do
-            model.date_of_birth_day = 0
-            expect(model.date_of_birth_day).to be_nil
+          before { model.date_of_birth_day = 0 }
+
+          it 'sets the value' do
+            expect(model.date_of_birth_day).to eq 0
+          end
+
+          it 'makes the model invalid' do
+            expect(model).to be_invalid
           end
         end
       end
 
       describe 'when sent text' do
+        before { model.date_of_birth_day = 'first' }
+
         it 'returns nil' do
-          model.date_of_birth_day = 'first'
-          expect(model.date_of_birth_day).to be_nil
+          expect(model.date_of_birth_day).to eq 'first'
+        end
+
+        it 'makes the model invalid' do
+          expect(model).to be_invalid
         end
       end
 
@@ -104,41 +145,56 @@ RSpec.describe Manager, type: :model do
         end
 
         describe 'above accepted range' do
-          it 'sets the value as nil' do
-            model.date_of_birth_month = 13
-            expect(model.date_of_birth_month).to be_nil
+          before { model.date_of_birth_month = 13 }
+
+          it 'sets the value' do
+            expect(model.date_of_birth_month).to eq 13
+          end
+
+          it 'makes the model invalid' do
+            expect(model).to be_invalid
           end
         end
 
         describe 'below accepted range' do
-          it 'sets the value as nil' do
-            model.date_of_birth_month = 0
-            expect(model.date_of_birth_month).to be_nil
+          before { model.date_of_birth_month = 0 }
+
+          it 'sets the value' do
+            expect(model.date_of_birth_month).to eq 0
+          end
+
+          it 'makes the model invalid' do
+            expect(model).to be_invalid
           end
         end
       end
 
       describe 'when sent text' do
         describe 'that is a valid long month' do
-          I18n.t('date.month_names').each_with_index do |month, index|
+          I18n.t('date.month_names').each_with_index do |month, _index|
             it "sending #{month} sets the month to #{month}" do
               model.date_of_birth_month = month
-              expect(model.date_of_birth_month).to eq index unless month.nil?
+              expect(model.date_of_birth_month).to eq month unless month.nil?
             end
           end
         end
         describe 'that is a valid short month' do
-          I18n.t('date.abbr_month_names').each_with_index do |month, index|
+          I18n.t('date.abbr_month_names').each_with_index do |month, _index|
             it "sending #{month} sets the month to #{month}" do
               model.date_of_birth_month = month
-              expect(model.date_of_birth_month).to eq index unless month.nil?
+              expect(model.date_of_birth_month).to eq month unless month.nil?
             end
           end
         end
         describe 'that is not a valid month' do
-          it 'returns nil' do
-            model.date_of_birth_day = 'first'
-            expect(model.date_of_birth_day).to be_nil
+          before {model.date_of_birth_month = 'first' }
+
+          it 'returns the text' do
+            expect(model.date_of_birth_month).to eq 'first'
+          end
+
+          it 'makes the model invalid' do
+            expect(model).to be_invalid
           end
         end
       end
@@ -161,9 +217,13 @@ RSpec.describe Manager, type: :model do
             end
           end
           describe 'outside the acceptable range' do
+            before { model.date_of_birth_year = 3334 }
             it 'returns nil' do
-              model.date_of_birth_year = 3334
-              expect(model.date_of_birth_year).to be_nil
+              expect(model.date_of_birth_year).to be 3334
+            end
+
+            it 'makes the model invalid' do
+              expect(model).to be_invalid
             end
           end
         end
@@ -176,9 +236,14 @@ RSpec.describe Manager, type: :model do
       end
 
       describe 'when sent text' do
-        it 'returns nil' do
-          model.date_of_birth_year = 'Nineteen Sixty One'
-          expect(model.date_of_birth_year).to be_nil
+        before { model.date_of_birth_year = 'Nineteen Sixty One' }
+
+        it 'sets the value' do
+          expect(model.date_of_birth_year).to eq 'Nineteen Sixty One'
+        end
+
+        it 'makes the model invalid' do
+          expect(model).to be_invalid
         end
       end
 
@@ -215,6 +280,7 @@ RSpec.describe Manager, type: :model do
         end
       end
     end
+
     describe 'set the date field by calling validate_date' do
       context 'when all are completed' do
         before(:each) { model.date_of_birth = nil }

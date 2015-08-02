@@ -10,10 +10,6 @@ class Post < ActiveRecord::Base
   # validates :posted_month, presence: true
   # validates :posted_year, presence: true
 
-  after_find do |item|
-    puts "----after_find found #{item.inspect}" unless item.nil?
-  end
-
   after_initialize do |item|
 
     puts '=--=--=--='
