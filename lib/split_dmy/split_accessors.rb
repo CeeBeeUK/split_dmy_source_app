@@ -4,76 +4,68 @@ module SplitDmy
       require 'date_validator'
 
       attrs.each do |attr|
+        validate "validate_#{attr}_partials".to_sym
 
-        extend_builtin(attr)
-
+        override_builtin(attr)
         add_attr_accessors(attr)
-
         extend_validation(attr)
       end
+      add_methods
     end
 
     private
 
     def extend_validation(attr)
-      validate "validate_#{attr}_partials".to_sym
-
       define_method("validate_#{attr}_partials") do
         dv = DateValidator.new(self, attr)
         new_errs = []
         if dv.all_partials_empty?
           new_errs << 'you need to provide a valid date'
-        elsif dv.partials_valid? && !dv.build_date
-          temp_date = [send("#{attr}_day"),
-                       send("#{attr}_month"),
-                       send("#{attr}_year")].join('-')
-          new_errs << "'#{temp_date}' is not a valid date"
+        elsif dv.partials_valid_date_fails?
+          new_errs << "'#{dv.combine_partials}' is not a valid date"
         else
           field_errors = []
           %w(day month year).each do |part|
             if instance_variable_get("@#{attr}_#{part}").to_s.empty?
-              err_msg = 'must be completed'
-              field_errors << "#{part} #{err_msg}"
+              error = "#{part} must be completed"
             else
-              unless DateValidator.new(self, attr).send("valid_#{part}?")
-                err_msg = "is not a valid #{part}"
-                field_errors << err_msg
-              end
+              error = "is not a valid #{part}" unless dv.send("valid_#{part}?")
             end
-            errors.add("#{attr}_#{part}".to_sym, err_msg) if err_msg.present?
+            if error.present?
+              field_errors << error
+              errors.add("#{attr}_#{part}".to_sym, error)
+            end
           end
-
-          unless field_errors.empty?
-            err_msg = field_errors.to_sentence(last_word_connector: ' and ')
-            new_errs << err_msg
-          end
+          new_errs << make_sentence_of(field_errors) unless field_errors.empty?
         end
-
         unless new_errs.empty?
           errors.delete(attr.to_sym)
-          err_msg = new_errs.to_sentence(last_word_connector: ' and ')
-          errors.add(attr.to_sym, "is not valid, #{err_msg}")
+          errors.add(attr.to_sym, "is not valid, #{make_sentence_of(new_errs)}")
         end
       end
     end
 
-    def extend_builtin(attr)
+    def override_builtin(attr)
       after_initialize do
         full_date = send("#{attr}")
-        unless full_date.nil?
-          instance_variable_set("@#{attr}_day", full_date.day)
-          instance_variable_set("@#{attr}_month", full_date.month)
-          instance_variable_set("@#{attr}_year", full_date.year)
-        end
+        split_into_parts(attr, full_date) unless full_date.nil?
       end
 
       define_method("#{attr}=") do |val|
         super(val)
-        unless val.nil?
-          instance_variable_set("@#{attr}_day", Date.parse(val.to_s).day)
-          instance_variable_set("@#{attr}_month", Date.parse(val.to_s).month)
-          instance_variable_set("@#{attr}_year", Date.parse(val.to_s).year)
-        end
+        split_into_parts(attr, Date.parse(val.to_s)) unless val.nil?
+      end
+    end
+
+    def add_methods
+      define_method('split_into_parts') do |attr, full_date|
+        instance_variable_set("@#{attr}_day", full_date.day)
+        instance_variable_set("@#{attr}_month", full_date.month)
+        instance_variable_set("@#{attr}_year", full_date.year)
+      end
+
+      define_method('make_sentence_of') do |errors|
+        errors.to_sentence(last_word_connector: ' and ')
       end
     end
 
