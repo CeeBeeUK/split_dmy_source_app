@@ -2,7 +2,7 @@ require 'rails_helper'
 require_relative '../../spec/support/matchers/accessors_shared'
 
 RSpec.describe Manager, type: :model do
-  let(:model) { Manager.new }
+  let(:model) { described_class.new }
 
   it 'has a date of birth field to extend' do
     expect(model).to respond_to :date_of_birth
@@ -23,7 +23,7 @@ RSpec.describe Manager, type: :model do
       end
 
       context 'when object created with date' do
-        let(:model) { Manager.new(date_of_birth: Date.new(1992, 1, 21)) }
+        let(:model) { described_class.new(date_of_birth: Date.new(1992, 1, 21)) }
 
         it 'sets the date' do
           expect(model.date_of_birth).to eq Date.new(1992, 1, 21)

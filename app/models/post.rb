@@ -1,3 +1,4 @@
+# rubocop:disable all
 class Post < ActiveRecord::Base
 
   Date::DATE_FORMATS[:gov_uk_long] = '%-d %B %Y'

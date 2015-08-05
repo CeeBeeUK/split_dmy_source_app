@@ -18,26 +18,18 @@ module SplitDmy
     def extend_validation(attr)
       define_method("validate_#{attr}_partials") do
         dv = DateValidator.new(self, attr)
-        new_errs = []
-        if dv.all_partials_empty?
-          new_errs << 'you need to provide a valid date'
-        elsif dv.partials_valid_date_fails?
-          new_errs << "'#{dv.combine_partials}' is not a valid date"
-        else
-          field_errors = []
-          %w(day month year).each do |part|
-            if instance_variable_get("@#{attr}_#{part}").to_s.empty?
-              error = "#{part} must be completed"
-            else
-              error = "is not a valid #{part}" unless dv.send("valid_#{part}?")
-            end
-            if error.present?
-              field_errors << error
-              errors.add("#{attr}_#{part}".to_sym, error)
-            end
+        new_errs, field_errors = [], []
+        new_errs << 'you need to provide a valid date' if dv.all_partials_empty?
+        new_errs << dv.combine_partials_error if dv.partials_valid_date_fails?
+
+        %w[day month year].each do |part|
+          error = dv.get_partial_error(part)
+          if error.present?
+            field_errors << error
+            errors.add("#{attr}_#{part}".to_sym, error)
           end
-          new_errs << make_sentence_of(field_errors) unless field_errors.empty?
         end
+        new_errs << make_sentence_of(field_errors) unless field_errors.empty?
         unless new_errs.empty?
           errors.delete(attr.to_sym)
           errors.add(attr.to_sym, "is not valid, #{make_sentence_of(new_errs)}")
@@ -70,7 +62,7 @@ module SplitDmy
     end
 
     def add_attr_accessors(attr)
-      %w(day month year).each do |part|
+      %w[day month year].each do |part|
         define_method("#{attr}_#{part}=") do |val|
           instance_variable_set("@#{attr}_#{part}", val)
           new = DateValidator.new(self, attr).partial_updated

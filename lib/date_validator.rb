@@ -25,8 +25,14 @@ class DateValidator
     partials_valid? && !build_date
   end
 
-  def combine_partials
-    [@split_day, @split_month, @split_year].join('-')
+  def combine_partials_error
+    "'#{[@split_day, @split_month, @split_year].join('-')}' is not a valid date"
+  end
+
+  def get_partial_error(part)
+    error = "#{part} must be completed" if "@split_#{part}".to_s.empty?
+    error = "is not a valid #{part}" unless send("valid_#{part}?")
+    error
   end
 
   def build_date
