@@ -1,6 +1,6 @@
 class NewDateValidator
   def initialize(object, attribute)
-    posted_day = object.instance_variable_get("@#{attribute}_day")
+    @posted_day = object.instance_variable_get("@#{attribute}_day")
     @split_month = object.instance_variable_get("@#{attribute}_month")
     @split_year = object.instance_variable_get("@#{attribute}_year")
   end
