@@ -28,11 +28,10 @@ class ManagersController < ApplicationController
 
     respond_to do |format|
       if @manager.save
-        format.html { redirect_to @manager, notice: 'Manager was successfully created.' }
+        format.html { redirect_to @manager, notice: notice('created') }
         format.json { render :show, status: :created, location: @manager }
       else
         format.html { render :new }
-        format.json { render json: @manager.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -42,11 +41,10 @@ class ManagersController < ApplicationController
   def update
     respond_to do |format|
       if @manager.update(manager_params)
-        format.html { redirect_to @manager, notice: 'Manager was successfully updated.' }
+        format.html { redirect_to @manager, notice: notice('updated') }
         format.json { render :show, status: :ok, location: @manager }
       else
         format.html { render :edit }
-        format.json { render json: @manager.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -56,19 +54,27 @@ class ManagersController < ApplicationController
   def destroy
     @manager.destroy
     respond_to do |format|
-      format.html { redirect_to managers_url, notice: 'Manager was successfully destroyed.' }
+      format.html { redirect_to managers_url, notice: notice('destroyed') }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_manager
-      @manager = Manager.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def manager_params
-      params.require(:manager).permit(:date_of_birth, :date_of_birth_day, :date_of_birth_month, :date_of_birth_year)
-    end
+  def notice(type)
+    "Manager was successfully #{type}."
+  end
+
+  def set_manager
+    @manager = Manager.find(params[:id])
+  end
+
+  def manager_params
+    params.require(:manager).permit(
+      :date_of_birth,
+      :date_of_birth_day,
+      :date_of_birth_month,
+      :date_of_birth_year
+    )
+  end
 end

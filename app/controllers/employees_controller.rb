@@ -10,14 +10,6 @@ class EmployeesController < ApplicationController
   # GET /employees/1
   # GET /employees/1.json
   def show
-    puts '------------'
-    puts '--- show ---'
-    puts '------------'
-    puts "employee.dob=#{@employee.dob}"
-    puts "employee.dob_year=#{@employee.dob_year}"
-    puts "employee.login=#{@employee.login}"
-    puts "employee.login_hour=#{@employee.login_hour}"
-    puts '------------'
   end
 
   # GET /employees/new
@@ -27,14 +19,6 @@ class EmployeesController < ApplicationController
 
   # GET /employees/1/edit
   def edit
-    puts '------------'
-    puts '--- edit ---'
-    puts '------------'
-    puts "employee.dob=#{@employee.dob}"
-    puts "employee.dob_year=#{@employee.dob_year}"
-    puts "employee.login=#{@employee.login}"
-    puts "employee.login_hour=#{@employee.login_hour}"
-    puts '------------'
   end
 
   # POST /employees
@@ -44,11 +28,10 @@ class EmployeesController < ApplicationController
 
     respond_to do |format|
       if @employee.save
-        format.html { redirect_to @employee, notice: 'Employee was successfully created.' }
+        format.html { redirect_to @employee, notice: notice('created') }
         format.json { render :show, status: :created, location: @employee }
       else
         format.html { render :new }
-        format.json { render json: @employee.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -56,29 +39,12 @@ class EmployeesController < ApplicationController
   # PATCH/PUT /employees/1
   # PATCH/PUT /employees/1.json
   def update
-    puts '--------------'
-    puts '--- update ---'
-    puts '--------------'
-    puts '--- before ---'
-    puts '--------------'
-    puts "employee.dob=#{@employee.dob}"
-    puts "employee.dob_year=#{@employee.dob_year}"
-    puts "employee.login=#{@employee.login}"
-    puts "employee.login_hour=#{@employee.login_hour}"
-    puts '--------------'
     respond_to do |format|
       if @employee.update(employee_params)
-        puts '--- after ---'
-        puts '--------------'
-        puts "employee.dob=#{@employee.dob}"
-        puts "employee.dob_year=#{@employee.dob_year}"
-        puts "employee.login=#{@employee.login}"
-        puts "employee.login_hour=#{@employee.login_hour}"
-        format.html { redirect_to @employee, notice: 'Employee was successfully updated.' }
+        format.html { redirect_to @employee, notice: notice('updated') }
         format.json { render :show, status: :ok, location: @employee }
       else
         format.html { render :edit }
-        format.json { render json: @employee.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -88,19 +54,31 @@ class EmployeesController < ApplicationController
   def destroy
     @employee.destroy
     respond_to do |format|
-      format.html { redirect_to employees_url, notice: 'Employee was successfully destroyed.' }
+      format.html { redirect_to employees_url, notice: notice('destroyed') }
       format.json { head :no_content }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_employee
-      @employee = Employee.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def employee_params
-      params.require(:employee).permit(:name, :dob_day, :dob_month, :dob_year, :login, :login_date, :login_hour, :login_min)
-    end
+  def notice(type)
+    "Employee was successfully #{type}."
+  end
+
+  def set_employee
+    @employee = Employee.find(params[:id])
+  end
+
+  def employee_params
+    params.require(:employee).permit(
+      :name,
+      :dob_day,
+      :dob_month,
+      :dob_year,
+      :login,
+      :login_date,
+      :login_hour,
+      :login_min
+    )
+  end
 end
